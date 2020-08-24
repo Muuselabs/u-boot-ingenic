@@ -154,6 +154,7 @@
 #define CONFIG_SPL_VERSION	1
 #endif
 
+#if 0
 /**
  * Boot arguments definitions.
  */
@@ -197,6 +198,13 @@
 		#define CONFIG_BOOTARGS BOOTARGS_COMMON " root=/dev/mmcblk1p7 rootfstype=ext4 rootdelay=1 rw"
 		#define CONFIG_BOOTCOMMAND "mmc dev 1;mmc read 0x80600000 0x1800 0x3000; bootm 0x80600000"
 	#endif
+#endif
+
+#else
+
+#define BOOTARGS_COMMON "console=ttyS2,115200n8 mem=32M@0x0 loglevel=7 "
+#define CONFIG_BOOTARGS BOOTARGS_COMMON " root=/dev/mmcblk0p7 rootfstype=ext4 rootdelay=1 rw"
+#define CONFIG_BOOTCOMMAND "mmc dev 0;mmc read 0x80600000 0x1800 0x4000; bootm 0x80600000"
 #endif
 
 #ifdef CONFIG_SPL_OS_BOOT
