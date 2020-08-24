@@ -33,8 +33,6 @@ struct spi spi;
 #define VR_FLUSH_CACHE		0x03
 #define VR_PROG_STAGE1		0x04
 #define VR_PROG_STAGE2		0x05
-#define VR_GET_CHIP_ID		0x06
-#define VR_GET_USER_ID		0x07
 #define VR_GET_ACK		0x10	/*firmware stage request*/
 #define VR_INIT			0x11
 #define VR_WRITE		0x12
@@ -156,14 +154,16 @@ struct ParameterInfo
 struct spi_param {
 	uint32_t download_params;
 	uint32_t sfc_quad_mode;
-	uint32_t spi_erase_block_siz;
+	uint32_t spi_erase_block_size;
 	uint32_t spi_erase;
 	char* flash_info[0];
 };
 struct policy_param{
 	int use_nand_mgr;
 	int use_nand_mtd;
-	int use_mmc;
+	int use_mmc0;
+	int use_mmc1;
+	int use_mmc2;
 	uint32_t use_sfc_nor;
 	uint32_t use_sfc_nand;
 	uint32_t use_spi_nand;

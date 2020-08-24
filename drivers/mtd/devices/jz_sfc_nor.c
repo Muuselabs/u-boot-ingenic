@@ -294,7 +294,7 @@ static int sfc_read(unsigned int from, unsigned int len, unsigned char *buf)
 {
 	int tmp_len = 0, current_len = 0;
 
-	while(len) {
+	while((int)len > 0) {
 		tmp_len = sfc_do_read((unsigned int)from + current_len, &buf[current_len], len);
 		current_len += tmp_len;
 		len -= tmp_len;
@@ -523,7 +523,7 @@ int32_t sfc_nor_flash_init()
 	flash = malloc(sizeof(struct sfc_flash));
 	if (!flash) {
 		printf("ERROR: %s %d kzalloc() error !\n",__func__,__LINE__);
-		return -1;
+		return -ENOMEM;
 	}
 	memset(flash, 0, sizeof(struct sfc_flash));
 
@@ -769,7 +769,6 @@ static void dump_mini_cloner_params()
 	printf("mini_chip_size=%d\n",	spi_nor_info->chip_size);
 	printf("mini_page_size=%d\n",	spi_nor_info->page_size);
 	printf("mini_erase_size=%d\n",	spi_nor_info->erase_size);
-	printf("mini_quad_mode=%d\n",	spi_nor_info->spl_quad);
 
 }
 #endif
@@ -800,13 +799,26 @@ int norflash_get_params_from_burner(unsigned char *addr)
 	dump_cloner_params();
 	dump_mini_cloner_params();
 	printf("fs_erase_size=%d\n", params.nor_pri_data.fs_erase_size);
-	printf("uk_quad=%d\n", params.uk_quad);
+	printf("uk_quad=%d\n", params.nor_pri_data.uk_quad);
 	printf("burner_quad_mode=%d\n",spiflash_info->b_quad);
 #endif
 
 	memcpy(nor_info->nor_flash_info, &params.spi_nor_info, sizeof(struct spi_nor_info));
 	memcpy(nor_info->norflash_partitions, &params.norflash_partitions, sizeof(struct norflash_partitions));
+
+#if 0
+	set_status(flash, SPINOR_OP_WRSR, 1, 0);
+	set_status(flash, SPINOR_OP_WRSR_1, 1, 0);
+	set_status(flash, SPINOR_OP_WRSR_2, 1, 0);
+	printf("SR0=%02x\n", get_status(flash, SPINOR_OP_RDSR, 1));
+	printf("SR1=%02x\n", get_status(flash, SPINOR_OP_RDSR_1, 1));
+	printf("SR2=%02x\n", get_status(flash, SPINOR_OP_RDSR_2, 1));
+#endif
 	sfc_nor_do_special_func();
+
+	printf("SR0=%02x\n", get_status(flash, SPINOR_OP_RDSR, 1));
+	printf("SR1=%02x\n", get_status(flash, SPINOR_OP_RDSR_1, 1));
+	printf("SR2=%02x\n", get_status(flash, SPINOR_OP_RDSR_2, 1));
 
 #ifdef SFC_NOR_CLONER_DEBUG
 	printf("partition num=%d\n", nor_info->norflash_partitions->num_partition_info);

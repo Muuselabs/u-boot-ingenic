@@ -83,7 +83,7 @@ static void cpccr_sets(void)
 		(H2DIV_REG_VALUE << 12) |
 		(PDIV_REG_VALUE <<  16);
 	cpm_outl(val,CPM_CPCCR);
-	while(!(cpm_inl(CPM_CPCSR) & 0xf0000000));
+	while((cpm_inl(CPM_CPCSR) & 0xf0000000) != 0xf0000000);
 	printf("CPM_CPCCR:%x\n",cpm_inl(CPM_CPCCR));
 }
 int pll_init(void)

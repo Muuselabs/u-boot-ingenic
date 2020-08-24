@@ -40,6 +40,16 @@
 #include "jz_gpio/m150_gpio.c"
 #elif defined (CONFIG_X1000)
 #include "jz_gpio/x1000_gpio.c"
+#elif defined (CONFIG_X2000)
+#include "jz_gpio/x2000_gpio.c"
+#elif defined (CONFIG_X2000_V12)
+#include "jz_gpio/x2000_v12_gpio.c"
+#elif defined (CONFIG_X1520)
+#include "jz_gpio/x1520_gpio.c"
+#elif defined (CONFIG_X1800)
+#include "jz_gpio/x1800_gpio.c"
+#elif defined (CONFIG_X1520)
+#include "jz_gpio/x1520_gpio.c"
 #elif defined (CONFIG_X1630)
 #undef JZGPIO_GROUP_OFFSET
 #define JZGPIO_GROUP_OFFSET     (0x1000)
@@ -48,10 +58,10 @@
 #undef JZGPIO_GROUP_OFFSET
 #define JZGPIO_GROUP_OFFSET     (0x1000)
 #include "jz_gpio/x1830_gpio.c"
-#elif defined (CONFIG_X1800)
-#include "jz_gpio/x1800_gpio.c"
-#elif defined (CONFIG_X2000)
-#include "jz_gpio/x2000_gpio.c"
+#elif defined (CONFIG_T31)
+#undef JZGPIO_GROUP_OFFSET
+#define JZGPIO_GROUP_OFFSET     (0x1000)
+#include "jz_gpio/t31_gpio.c"
 #endif
 DECLARE_GLOBAL_DATA_PTR;
 

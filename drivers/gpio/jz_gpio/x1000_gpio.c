@@ -22,16 +22,16 @@
  */
 
 static struct jz_gpio_func_def uart_gpio_func[] = {
-	[0] = { .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 0xf<<10},
+	[0] = { .port = GPIO_PORT_C, .func = GPIO_FUNC_0 | GPIO_PULL, .pins = 0xf<<10},
 #ifdef CONFIG_SYS_UART1_PA
-	[1] = { .port = GPIO_PORT_A, .func = GPIO_FUNC_2, .pins = 3<<4},
+	[1] = { .port = GPIO_PORT_A, .func = GPIO_FUNC_2 | GPIO_PULL, .pins = 3<<4},
 #else
-	[1] = { .port = GPIO_PORT_D, .func = GPIO_FUNC_1, .pins = 0xf<<2},
+	[1] = { .port = GPIO_PORT_D, .func = GPIO_FUNC_1 | GPIO_PULL, .pins = 0xf<<2},
 #endif
 #ifdef CONFIG_SYS_UART2_PD
-	[2] = { .port = GPIO_PORT_D, .func = GPIO_FUNC_0, .pins = 3<<4},
+	[2] = { .port = GPIO_PORT_D, .func = GPIO_FUNC_0 | GPIO_PULL, .pins = 3<<4},
 #elif defined(CONFIG_SYS_UART2_PA)
-	[2] = { .port = GPIO_PORT_A, .func = GPIO_FUNC_2, .pins = 3<<2},
+	[2] = { .port = GPIO_PORT_A, .func = GPIO_FUNC_2 | GPIO_PULL, .pins = 3<<2},
 #else
 	[2] = { .port = GPIO_PORT_C, .func = GPIO_FUNC_1 | GPIO_PULL, .pins = 1<<31},
 #endif
@@ -51,15 +51,13 @@ static struct jz_gpio_func_def gpio_func[] = {
 	{ .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 0x0000003f},
 #endif
 
-#if defined(CONFIG_LCD_GPIO_FUNC0_16BIT) || defined(CONFIG_LCD_GPIO_FUNC0_24BIT)
-	{ .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 0x0fffffff, },
-#endif
-#ifdef  CONFIG_LCD_GPIO_FUNC2_SLCD
-	{.port = GPIO_PORT_C, .func = GPIO_FUNC_2, .pins = 0x0e0ff3fc, }
-#endif
 #if defined(CONFIG_LCD_GPIO_FUNC1_SLCD)
 	{.port = GPIO_PORT_B, .func = GPIO_FUNC_1, .pins = 0x001a0000, },
+#if defined(CONFIG_LCD_GPIO_16BIT_DATA)
+	{.port = GPIO_PORT_A, .func = GPIO_FUNC_1, .pins = 0x0000ffff, },
+#else
 	{.port = GPIO_PORT_A, .func = GPIO_FUNC_1, .pins = 0x000000ff, },
+#endif
 #endif
 
 #ifdef CONFIG_JZ_PWM_GPIO_E0

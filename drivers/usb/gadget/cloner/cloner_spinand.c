@@ -73,6 +73,21 @@ static int spi_nand_skip_bad(unsigned int addr)
 	return offset;
 }
 
+int spinand_read(struct cloner *cloner)
+{
+	int ret = 0;
+	u32 addr = cloner->cmd->read.offset;
+	u32 len = cloner->cmd->read.length;
+	void *buf = (void *)cloner->read_req->buf;
+	nand_info_t *nand;
+	nand = &nand_info[0];
+
+	ret = nand_read(nand, addr, &len, buf);
+	if(ret < 0)
+		printf("%s error\n",__func__);
+
+	return ret;
+}
 
 int spinand_program(struct cloner *cloner)
 {
@@ -84,6 +99,7 @@ int spinand_program(struct cloner *cloner)
 	volatile int pt_index = -1;
 	struct jz_spinand_partition *partition;
 	int ret;
+	int len = length;
 
 	static int pt_index_bak = -1;
 	static char *part_name = NULL;
@@ -121,7 +137,7 @@ int spinand_program(struct cloner *cloner)
 			pt_index_bak = pt_index;
 		}
 		if ((startaddr + length) <= (partition->size + partition->offset)) {
-			ret = nand_write(nand, startaddr, &length, databuf);
+			ret = nand_write(nand, startaddr, &len, databuf);
 			BURNNER_PRI("nand write to offset 0x%lx, length = 0x%lx : %s\n",
 					startaddr, length, ret ? "ERROR" : "OK");
 		} else {
@@ -131,8 +147,12 @@ int spinand_program(struct cloner *cloner)
 		if (debug_args->write_back_chk) {
 			if (!readbuf) {
 				readbuf = malloc(READBUF_SIZE);
-				memset(readbuf,0,READBUF_SIZE);
+				if (!readbuf) {
+					printf("malloc read buffer spaces error!\n");
+					return -1;
+				}
 			}
+			memset(readbuf,0,READBUF_SIZE);
 			memset(command, 0 , 128);
 			sprintf(command,"nand read.jffs2 0x%x 0x%x 0x%x",readbuf,startaddr, length);
 			run_command(command,0);
@@ -210,11 +230,13 @@ out:
  * **************************************************************************************/
 void add_information_to_spl(char *databuf)
 {
-	int page_spl=0;
 	int32_t nand_magic=0x6e616e64;
 	char *member_addr=databuf;
-	page_spl=((nand_param_from_burner.addr->page_num/32)<<16)|((nand_param_from_burner.addr->page_size/1024)<<24);//compatible
+#ifndef CONFIG_M200
+	int page_spl=0;
+	page_spl=((nand_param_from_burner.addr->page_num/32)<<16)|((nand_param_from_burner.addr->page_size/1024)<<24);//compatibl
 	*((int *)(databuf+8))=( *((int *)(databuf+8)))|page_spl;	//write pagesize to spl head
+#endif
 	member_addr+=CONFIG_SPIFLASH_PART_OFFSET;			//spinand parameter number addr
 	memcpy((char *)member_addr,&nand_magic,sizeof(int32_t));
 	member_addr+=sizeof(int32_t);					//spinand parameter magic  addr

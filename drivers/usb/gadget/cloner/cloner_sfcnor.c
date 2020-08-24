@@ -51,6 +51,20 @@ static void add_sfc_nor_params_to_flash(unsigned char *buf)
 		*(volatile unsigned int *)(buf + 512) = 0x1111;
 }
 
+int sfcnor_read(struct cloner *cloner)
+{
+	int ret = 0;
+	u32 addr = cloner->cmd->read.offset;
+	u32 len = cloner->read_req->length;
+	void *buf = (void *)cloner->read_req->buf;
+
+	ret = sfc_nor_read(addr, len, buf);
+	if(ret < 0)
+		printf("%s error\n",__func__);
+
+	return ret;
+}
+
 int sfc_program(struct cloner *cloner)
 {
 	unsigned int bus = CONFIG_SF_DEFAULT_BUS;
@@ -59,7 +73,7 @@ int sfc_program(struct cloner *cloner)
 	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	u32 offset = cloner->cmd->write.partition + cloner->cmd->write.offset;
 	u32 length = cloner->cmd->write.length;
-	int blk_size = spi_args->spi_erase_block_siz;
+	int blk_size = spi_args->spi_erase_block_size;
 	void *addr = (void *)cloner->write_req->buf;
 	unsigned int ret;
 	int len = 0,err = 0;
@@ -117,8 +131,12 @@ int sfc_program(struct cloner *cloner)
 	if(debug_args->write_back_chk){
 		if(!readbuf){
 			readbuf = malloc(READBUF_SIZE);
-			memset(readbuf,0,READBUF_SIZE);
+			if (!readbuf) {
+				printf("malloc read buffer spaces error!\n");
+				return -1;
+			}
 		}
+		memset(readbuf,0,READBUF_SIZE);
 		ret = sfc_nor_read(offset,len,readbuf);
 		if(ret){
 			BURNNER_PRI(" write back check read  ops error,please check flash info !\n");

@@ -41,8 +41,8 @@ static int efuse_gpio = -1;
 #define RN_END		(0x21F)
 #define RN_SIZE		(128)
 #define CUT_ID_ADDR	(0x220)
-#define CUT_ID_END	(0x23D)
-#define CUT_ID_SIZE	(240)
+#define CUT_ID_END	(0x22F)
+#define CUT_ID_SIZE	(128)	/* X1000 CUT_ID(USER_ID) is 128 bit */
 #define PTR_ADDR	(0x23E)
 #define PTR_END	        (0x23F)
 #define PTR_SIZE	(16)
@@ -130,6 +130,7 @@ static void boost_vddq(int gpio)
 		val = gpio_get_value(gpio);
 		printf("gpio %d level %d\n",gpio,val);
 	} while (val);
+	mdelay(10);		/*  mdelay(10) wait for EFUSE VDDQ setup. */
 }
 
 static void reduce_vddq(int gpio)
@@ -141,6 +142,7 @@ static void reduce_vddq(int gpio)
 		val = gpio_get_value(gpio);
 		printf("gpio %d level %d\n",gpio,val);
 	} while (!val);
+	mdelay(10);		/*  mdelay(10) wait for EFUSE VDDQ fall down. */
 }
 
 static int efuse_read_data(void *buf, uint32_t start_addr, int length)
@@ -259,27 +261,36 @@ static int efuse_write_data(void *buf, uint32_t start_addr, int length)
 	 * set write Programming address and data length
 	 */
 	val = 0;
-	val = addr  << 21 | data_length << 16 | 1 << 15;
+	val = addr  << 21 | data_length << 16;
 	efuse_writel(val, EFUSE_CTRL);
-	/* Connect VDDQ pin from 2.5V */
-	boost_vddq(efuse_gpio);
+
 	/*
 	 * Programming EFUSE enable
 	 */
-	val = efuse_readl(EFUSE_CTRL);
+	//val = efuse_readl(EFUSE_CTRL);
 	val |= 1 << 15;
 	efuse_writel(val, EFUSE_CTRL);
+
+	/* Connect VDDQ pin from 2.5V */
+	boost_vddq(efuse_gpio);
+
+	/* clear write done status */
+	efuse_writel(0, EFUSE_STATE);
+
 	/* enable write */
-	val = efuse_readl(EFUSE_CTRL);
+	//val = efuse_readl(EFUSE_CTRL);
 	val |= 2;
 	efuse_writel(val, EFUSE_CTRL);
+
 	/* wait write done status */
 	while(!(efuse_readl(EFUSE_STATE) & 0x2) &&  --timeout);
 
 	/* Disconnect VDDQ pin from 2.5V. */
 	reduce_vddq(efuse_gpio);
-
+	/* clear PG_EN */
 	efuse_writel(0, EFUSE_CTRL);
+	/* clear write done status */
+	efuse_writel(0, EFUSE_STATE);
 	if(!timeout) {
 		error("write efuse failed");
 		ret = -EFAULT;
@@ -559,12 +570,15 @@ int efuse_read_id(void *buf, int length, int id)
 	switch(id) {
 		case EFUSE_R_CHIP_ID:
 			offset = CHIP_ID_ADDR;
+			length = CHIP_ID_SIZE / 8;
 			break;
 		case EFUSE_R_USER_ID:
 			offset = CUT_ID_ADDR;
+			length = CUT_ID_SIZE / 8;
 			break;
 		case EFUSE_R_RN:
 			offset = RN_ADDR;
+			length = RN_SIZE / 8;
 			break;
 		default:
 			printf("Unkown id !\n");

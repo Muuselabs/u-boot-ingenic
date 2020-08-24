@@ -59,6 +59,21 @@ static int sfc_nand_skip_bad(unsigned int addr)
 	return offset;
 }
 
+int spinand_read(struct cloner *cloner)
+{
+	int ret = 0;
+	u32 addr = cloner->cmd->read.offset;
+	u32 len = cloner->cmd->read.length;
+	void *buf = (void *)cloner->read_req->buf;
+	nand_info_t *nand;
+	nand = &nand_info[0];
+
+	ret = nand_read(nand, addr, &len, buf);
+	if(ret < 0)
+		printf("%s error\n",__func__);
+
+	return ret;
+}
 
 int spinand_program(struct cloner *cloner)
 {
@@ -108,8 +123,13 @@ int spinand_program(struct cloner *cloner)
 		}
 		if ((startaddr + length) <= (partition->size + partition->offset)) {
 			ret = nand_write(nand, startaddr, &length, databuf);
-			BURNNER_PRI("nand write to offset 0x%lx, length = 0x%lx : %s\n",
-					startaddr, length, ret ? "ERROR" : "OK");
+			BURNNER_PRI("nand write to offset 0x%lx, length = 0x%lx : ", startaddr, length);
+			if (ret || (length == 0)) {
+				BURNNER_PRI("ERROR\n");
+				return -EIO;
+			} else {
+				BURNNER_PRI("OK\n");
+			}
 		} else {
 			BURNNER_PRI("ERROR : out of partition !!!\n");
 		}
@@ -117,8 +137,12 @@ int spinand_program(struct cloner *cloner)
 		if (debug_args->write_back_chk) {
 			if (!readbuf) {
 				readbuf = malloc(READBUF_SIZE);
-				memset(readbuf,0,READBUF_SIZE);
+				if (!readbuf) {
+					printf("malloc read buffer spaces error!\n");
+					return -1;
+				}
 			}
+			memset(readbuf,0,READBUF_SIZE);
 			memset(command, 0 , 128);
 			sprintf(command,"nand read.jffs2 0x%x 0x%x 0x%x",readbuf,startaddr, length);
 			run_command(command,0);

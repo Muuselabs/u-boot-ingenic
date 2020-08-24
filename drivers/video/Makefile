@@ -93,6 +93,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
+
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 

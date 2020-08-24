@@ -42,6 +42,8 @@ COBJS-$(CONFIG_MTD_SFCNAND) +=nand_device/xtx_nand.o
 COBJS-$(CONFIG_MTD_SFCNAND) +=nand_device/xtx_mid0b_nand.o
 COBJS-$(CONFIG_MTD_SFCNAND) +=nand_device/foresee_nand.o
 COBJS-$(CONFIG_MTD_SFCNAND) +=nand_device/zetta_nand.o
+COBJS-$(CONFIG_MTD_SFCNAND) +=nand_device/dosilicon_nand.o
+COBJS-$(CONFIG_MTD_SFCNAND) +=nand_device/tc_nand.o
 endif
 
 
@@ -50,6 +52,7 @@ SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
+
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))

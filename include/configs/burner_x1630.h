@@ -31,6 +31,7 @@
 #define CONFIG_X1630		/* X1630 SoC */
 #define CONFIG_XBURST_TRAPS
 #define CONFIG_SYS_HZ			1000		/* incrementer freq */
+#define CONFIG_SYS_EXTAL		24000000	/* EXTAL freq: 24 MHz */
 
 /**
  * PLL
@@ -39,6 +40,15 @@
 #define CONFIG_SYS_APLL_MNOD            ((74 << 20) | (1 << 14) | (1 << 11) | (2<<5))
 #define CONFIG_SYS_MPLL_FREQ            1000000000      /*If MPLL not use mast be set 0*/
 #define CONFIG_SYS_MPLL_MNOD            ((124 << 20) | (2 << 14) | (1 << 11) | (1<<5))
+
+#define CONFIG_SYS_CPU_FREQ		CONFIG_SYS_APLL_FREQ
+#define CONFIG_SYS_MEM_FREQ		(500000000)
+#define CONFIG_SYS_CPCCR_SEL		((2 << 30)| (1 << 28) | (2 << 26) | (2 << 24)   \
+						| (11 << 16) | (5 << 12) | (5 << 8)     \
+						| (1 << 4) | (0 << 0))
+
+#define CONFIG_CPU_SEL_PLL		APLL
+#define CONFIG_DDR_SEL_PLL		MPLL
 
 /**
  * CACHE
@@ -50,19 +60,13 @@
 /**
  * DEBUG
  **/
+#define CONFIG_SERIAL
 #define CONFIG_SYS_UART_INDEX		1
 #define CONFIG_BAUDRATE			115200
 
 /**
- * CPU & DDR
+ * DDR
  **/
-#define CONFIG_SYS_CPU_FREQ		CONFIG_SYS_APLL_FREQ
-#define CONFIG_SYS_MEM_FREQ		(500000000)
-#define CONFIG_SYS_CPCCR_SEL		(2 << 30) | (1 << 28) | (2 << 26) | (2 << 24) \
-						| ((8 - 1) << 16) | ((4 - 1) << 12) | ((4 - 1) << 8)	\
-						| ((2 - 1) << 4) | ((1 - 1) << 0)
-#define CONFIG_CPU_SEL_PLL		APLL
-#define CONFIG_DDR_SEL_PLL		MPLL
 
 #define CONFIG_DDR_INNOPHY
 #define CONFIG_X1XXX_INNOPHY
@@ -96,18 +100,17 @@
 /* I2C */
 #define CONFIG_INGENIC_SOFT_I2C
 
-/* SFC */
+/*
+ *SFC
+ */
 #define CONFIG_MTD_SFCNOR
 #define CONFIG_MTD_SFCNAND
-#define CONFIG_CMD_SFCNAND
-#define CONFIG_CMD_SFC_NOR
 #define CONFIG_JZ_SFC
 #define CONFIG_JZ_SFC_NOR
 #define CONFIG_SFC_NOR_RATE    		150000000
 #define CONFIG_SFC_NAND_RATE	    150000000
 #define CONFIG_SPL_VERSION_OFFSET	16
 #define CONFIG_SPIFLASH_PART_OFFSET	(0x6800)
-
 
 /*
  *  SPINAND MAC SN : the product of customer add partition of sequence code.
@@ -135,7 +138,8 @@
 #define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop mtest */
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
 #define CONFIG_CMD_BURN		/* ingenic usb burner support  */
-
+#define CONFIG_CMD_SFCNAND
+#define CONFIG_CMD_SFC_NOR
 
 /**
  * Miscellaneous configurable options
@@ -143,10 +147,10 @@
 #define CONFIG_RBTREE
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_SYS_MAXARGS 16
+#define CONFIG_SYS_MAXARGS              16
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_PROMPT CONFIG_SYS_BOARD "# "
-#define CONFIG_SYS_CBSIZE 1024 /* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE               1024 /* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #define CONFIG_SYS_MONITOR_LEN		(1024 * 1024)
@@ -154,7 +158,7 @@
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000 /* cached (KSEG0) address */
-#define CONFIG_SYS_SDRAM_MAX_TOP	0x90000000 /* don't run into IO space */
+#define CONFIG_SYS_SDRAM_MAX_TOP	0x84000000 /* don't run into IO space */
 #define CONFIG_SYS_INIT_SP_OFFSET	0x400000
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x84000000
