@@ -31,7 +31,7 @@ HOSTCPPFLAGS =	-include $(SRCTREE)/include/libfdt_env.h \
 		-I $(SRCTREE)/tools \
 		-DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
 		-DUSE_HOSTCC \
-		-D__KERNEL_STRICT_NAMES
+		-D__KERNEL_STRICT_NAMES -fPIE
 #HOSTCPPFLAGS = -I$(OBJTREE)include2 -I$(OBJTREE)/include -I$(SRCTREE)/include -DUSE_HOSTCC
 
 DDR-$(CONFIG_DDR_PARAMS_CREATOR)	+= ddr_params_creator ddr_reg_values.h
