@@ -105,7 +105,7 @@
 #define CONFIG_USB_DRV_VBUS	GPIO_PB(25)
 #endif
 
-#define BOOTARGS_COMMON "console=ttyS2,115200n8 mem=32M@0x0 loglevel=7 "
+#define BOOTARGS_COMMON "console=ttyS2,115200n8 loglevel=4 "
 #define CONFIG_BOOTARGS BOOTARGS_COMMON " root=/dev/mmcblk0p7 rootfstype=ext4 rootdelay=1 rw"
 #define CONFIG_BOOTCOMMAND "mmc dev 0;mmc read 0x80A00000 0x1800 0x4000; bootm 0x80A00000"
 
