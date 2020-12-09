@@ -203,7 +203,9 @@
 /**
  * Miscellaneous configurable options
  */
-#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_CMD_GPT
+#define CONFIG_PARTITION_UUIDS
 
 #define CONFIG_LZO
 #define CONFIG_RBTREE
