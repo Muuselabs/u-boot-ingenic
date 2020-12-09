@@ -109,57 +109,6 @@
 #define CONFIG_BOOTARGS BOOTARGS_COMMON " root=/dev/mmcblk0p7 rootfstype=ext4 rootdelay=1 rw"
 #define CONFIG_BOOTCOMMAND "mmc dev 0;mmc read 0x80A00000 0x1800 0x4000; bootm 0x80A00000"
 
-#ifdef CONFIG_SPL_OS_BOOT
-    #ifdef  CONFIG_SPL_SFC_NOR
-	     #define CONFIG_SPL_BOOTARGS	BOOTARGS_COMMON "ip=off init=/linuxrc rootfstype=jffs2 root=/dev/mtdblock2 rw"
-    #else
-	     #define CONFIG_SPL_BOOTARGS	BOOTARGS_COMMON "ip=off init=/linuxrc ubi.mtd=2 root=ubi0:rootfs ubi.mtd=3 rootfstype=ubifs rw"
-    #endif
-      #ifdef CONFIG_OTA_VERSION20
-             #define CONFIG_PAR_NV_NAME        "NV_RW"
-             #undef CONFIG_SPL_BOOTARGS
-	#ifdef  CONFIG_SPL_SFC_NOR
-             #define CONFIG_PAT_USERFS_NAME   "userfs"
-             #define CONFIG_PAT_UPDATEFS_NAME   "updatefs"
-             #define CONFIG_SPL_BOOTARGS         BOOTARGS_COMMON "ip=off init=/linuxrc rootfstype=cramfs root=/dev/mtdblock5 rw"
-	#else
-		#define CONFIG_NVRW_ADDR	0X100000
-		#define CONFIG_NVRW_SIZE	0X60000
-		#define CONFIG_RECOVERY_ADDR	0X3200000
-		#define CONFIG_SYSTEM_ADDR	0X1400000
-		#define CONFIG_KERNEL_ADDR	0xc00000
-		#define	CONFIG_RAMDISK_ADDR	0x3c00000
-		#define CONFIG_RAMDISK_SIZE	0x500000
-		#define	CONFIG_RAMDISK_LOAD_ADDR	0x80a00000
-		#define CONFIG_SPL_BOOTARGS     BOOTARGS_COMMON "ip=off init=/linuxrc ubi.mtd=5 root=ubi0:system rootfstype=ubifs rw"
-		#define CONFIG_SPL_OTA_BOOTARGS         BOOTARGS_COMMON "ip=off ip=off root=/dev/ram0 rw rd_start=0x80a00000 rd_size=0x500000"
-		/*#define CONFIG_SPL_OTA_BOOTARGS         BOOTARGS_COMMON "ip=off ip=off root=/dev/ram0 rw rdinit=/linuxrc"*/
-	#endif
-      #else
-             #define CONFIG_SOFT_BURNER
-             #define CONFIG_AUDIO_CAL_DIV
-             #define CONFIG_AUDIO_APLL CONFIG_SYS_APLL_FREQ
-             #define CONFIG_AUDIO_MPLL CONFIG_SYS_MPLL_FREQ
-     #endif /*CONFIG_OTA_VERSION20*/
-     #ifdef CONFIG_BOOT_VMLINUX
-             #undef CONFIG_SPL_BOOTARGS
-             #define CONFIG_SPL_BOOTARGS         BOOTARGS_COMMON "ip=off init=/linuxrc rootfstype=cramfs root=/dev/mtdblock2 rw"
-     #endif /* CONFIG_BOOT_VMLINUX */
-
-     #define CONFIG_SPL_OS_NAME        "kernel" /* spi offset of xImage being loaded */
-     #define CONFIG_SYS_SPL_ARGS_ADDR    CONFIG_SPL_BOOTARGS
-     #define CONFIG_SYS_SPL_OTA_ARGS_ADDR    CONFIG_SPL_OTA_BOOTARGS
-     #define CONFIG_BOOTX_BOOTARGS       BOOTARGS_COMMON "ip=off init=/linuxrc rootfstype=cramfs root=/dev/mtdblock6 rw"
-     #undef  CONFIG_BOOTCOMMAND
-     #define CONFIG_BOOTCOMMAND    "bootx sfc 0x80f00000"
-     #ifdef CONFIG_BOOT_RTOS
-             #define CONFIG_LOAD_ADDR	0x80004000
-     #else
-             #define CONFIG_LOAD_ADDR	0x80001000
-     #endif
-#endif	/* CONFIG_SPL_OS_BOOT */
-
-
 #define PARTITION_NUM 10
 
 /**
@@ -307,18 +256,16 @@
 #define CONFIG_SYS_TEXT_BASE		0x80100000
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
+/* for mender */
+#define CONFIG_BOOTCOUNT_LIMIT 1
+#define CONFIG_BOOTCOUNT_ENV 1
+
 /**
  * Environment
  */
-#if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			(32 << 10)
 #define CONFIG_ENV_OFFSET		(CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
-#elif defined(CONFIG_ENV_IS_IN_SFC)
-#define CONFIG_ENV_SIZE			(4 << 10)
-#define CONFIG_ENV_OFFSET		0x80000 /*write nor flash 252k address*/
-#define CONFIG_CMD_SAVEENV
-#endif
 
 /**
  * SPL configuration
@@ -327,75 +274,18 @@
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NO_CPU_SUPPORT_CODE
 #define CONFIG_SPL_START_S_PATH		"$(CPUDIR)/$(SOC)"
-#ifdef CONFIG_SPL_NOR_SUPPORT
- #define CONFIG_SPL_LDSCRIPT             "$(CPUDIR)/$(SOC)/u-boot-nor-spl.lds"
-#else
- #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/$(SOC)/u-boot-spl.lds"
-#endif
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/$(SOC)/u-boot-spl.lds"
+
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x3A /* 12KB+17K offset */
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
-#if defined(CONFIG_SPL_NOR_SUPPORT)
- #define CONFIG_SPL_TEXT_BASE		0xba000000
- #define CONFIG_SYS_UBOOT_BASE		(CONFIG_SPL_TEXT_BASE + CONFIG_SPL_PAD_TO - 0x40)
-					/* 0x40 = sizeof (image_header)*/
- #define CONFIG_SYS_OS_BASE		0
- #define CONFIG_SYS_SPL_ARGS_ADDR	0
- #define CONFIG_SYS_FDT_BASE		0
- #define CONFIG_SPL_PAD_TO		32768
- #define CONFIG_SPL_MAX_SIZE		(32 * 1024)
-#elif defined(CONFIG_SPL_JZMMC_SUPPORT)
- #define CONFIG_SPL_PAD_TO		12288  /* spl size */
- #define CONFIG_SPL_TEXT_BASE		0xf4001000
- #define CONFIG_SPL_MAX_SIZE		(12 * 1024)
-#elif defined(CONFIG_SPL_SFC_SUPPORT)
-  #define CONFIG_UBOOT_OFFSET             (4<<12)
-  #define CONFIG_JZ_SFC_PA_6BIT
- #ifdef	CONFIG_SPL_SFC_NAND
-  #define CONFIG_SFC_NAND_RATE    100000000
-  #define CONFIG_SPIFLASH_PART_OFFSET     0x3c00
-  #define CONFIG_SPI_NAND_BPP			(2048 +64)		/*Bytes Per Page*/
-  #define CONFIG_SPI_NAND_PPB			(64)		/*Page Per Block*/
+#if defined(CONFIG_SPL_JZMMC_SUPPORT)
+  #define CONFIG_SPL_PAD_TO		12288  /* spl size */
   #define CONFIG_SPL_TEXT_BASE		0xf4001000
   #define CONFIG_SPL_MAX_SIZE		(12 * 1024)
-  #define CONFIG_SPL_PAD_TO		16384
-  #define CONFIG_JZ_SFC
-  #define CONFIG_CMD_SFCNAND
-  #define CONFIG_CMD_NAND
-  #define CONFIG_SPI_SPL_CHECK
-  #define CONFIG_SYS_MAX_NAND_DEVICE	1
-  #define CONFIG_SYS_NAND_BASE    0xb3441000
-
-  #define CONFIG_MTD_DEVICE
-  #define CONFIG_CMD_UBI
-  #define CONFIG_CMD_UBIFS
-  #define CONFIG_CMD_MTDPARTS
-  #define CONFIG_MTD_PARTITIONS
-  #define MTDIDS_DEFAULT                  "nand0=nand"
-  #define MTDPARTS_DEFAULT                "mtdparts=nand:1M(boot),8M(kernel),40M(rootfs),-(data)"
-
-
-/*SFCNAND env*/
-/* spi nand environment */
-  #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-  #define CONFIG_ENV_SECT_SIZE 0x20000 /* 128K*/
-  #define SPI_NAND_BLK            0x20000 /*the spi nand block size */
-  #define CONFIG_ENV_SIZE         SPI_NAND_BLK /* uboot is 1M but the last block size is the env*/
-  #define CONFIG_ENV_OFFSET       0xc0000 /* offset is 768k */
-  #define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-  #define CONFIG_ENV_IS_IN_SFC_NAND
-
-
- #else
-  #define CONFIG_SPI_SPL_CHECK
-  #define CONFIG_SPL_TEXT_BASE		0xf4001000
-  #define CONFIG_SPL_MAX_SIZE		(12 * 1024)
-  #define CONFIG_SPL_PAD_TO		16384
-  #define CONFIG_CMD_SFC_NOR
- #endif
 #endif
 
 #ifdef CONFIG_CMD_SPI
@@ -417,33 +307,6 @@
 #define CONFIG_UBOOT_OFFSET             (4<<12)
 #endif
 
-/**
- * MBR configuration
- */
-#ifdef CONFIG_MBR_CREATOR
-#define CONFIG_MBR_P0_OFF	64mb
-#define CONFIG_MBR_P0_END	556mb
-#define CONFIG_MBR_P0_TYPE 	linux
-
-#define CONFIG_MBR_P1_OFF	580mb
-#define CONFIG_MBR_P1_END 	1604mb
-#define CONFIG_MBR_P1_TYPE 	linux
-
-#define CONFIG_MBR_P2_OFF	28mb
-#define CONFIG_MBR_P2_END	58mb
-#define CONFIG_MBR_P2_TYPE 	linux
-
-#define CONFIG_MBR_P3_OFF	1609mb
-#define CONFIG_MBR_P3_END	7800mb
-#define CONFIG_MBR_P3_TYPE 	fat
-#else
 #define CONFIG_GPT_TABLE_PATH	"$(TOPDIR)/board/$(BOARDDIR)"
-#endif
-
-
-/*
-* MTD support
-*/
-#define CONFIG_SYS_NAND_SELF_INIT
 
 #endif /* __CONFIG_ML_J2000_H__ */
