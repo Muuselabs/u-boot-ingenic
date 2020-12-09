@@ -106,8 +106,8 @@
 #endif
 
 #define BOOTARGS_COMMON "console=ttyS2,115200n8 loglevel=4 "
-#define CONFIG_BOOTARGS BOOTARGS_COMMON " root=/dev/mmcblk0p7 rootfstype=ext4 rootdelay=1 rw"
-#define CONFIG_BOOTCOMMAND "mmc dev 0;mmc read 0x80A00000 0x1800 0x4000; bootm 0x80A00000"
+#define CONFIG_BOOTARGS BOOTARGS_COMMON " root=${mender_kernel_root} rootfstype=ext4 rw"
+#define CONFIG_BOOTCOMMAND "run mender_setup; load ${mender_uboot_root} 0x80A00000 ${bootdir}/${bootfile}; bootm 0x80A00000; run mender_try_to_recover;"
 
 #define PARTITION_NUM 10
 
@@ -263,8 +263,8 @@
 /**
  * Environment
  */
+#define CONFIG_ENV_SIZE			(32768)
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			(32 << 10)
 #define CONFIG_ENV_OFFSET		(CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
 
 /**
