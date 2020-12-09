@@ -109,6 +109,9 @@
 #define CONFIG_BOOTARGS BOOTARGS_COMMON " root=${mender_kernel_root} rootfstype=ext4 rw"
 #define CONFIG_BOOTCOMMAND "run mender_setup; load ${mender_uboot_root} 0x80A00000 ${bootdir}/${bootfile}; bootm 0x80A00000; run mender_try_to_recover;"
 
+/* mender uses hush syntax */
+#define CONFIG_SYS_HUSH_PARSER 1
+
 #define PARTITION_NUM 10
 
 /**
