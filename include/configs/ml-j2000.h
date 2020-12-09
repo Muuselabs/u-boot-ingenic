@@ -264,8 +264,13 @@
  * Environment
  */
 #define CONFIG_ENV_SIZE			(32768)
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)
+
+/* NOTE(PP): this needs to match the relevant variables in the mender yocto setup! */
+#define CONFIG_ENV_OFFSET         0x800000
+#define CONFIG_ENV_OFFSET_REDUND  0x1000000
+#define CONFIG_SYS_MMC_ENV_PART   0
+#define CONFIG_SYS_MMC_ENV_DEV    0
+
 
 /**
  * SPL configuration
