@@ -105,9 +105,9 @@
 #define CONFIG_USB_DRV_VBUS	GPIO_PB(25)
 #endif
 
-#define BOOTARGS_COMMON "console=ttyS2,115200n8 loglevel=4 "
+#define BOOTARGS_COMMON "console=ttyS2,115200n8 mem=32M@0x0 loglevel=4 "
 #define CONFIG_BOOTARGS BOOTARGS_COMMON " root=${mender_kernel_root} rootfstype=ext4 rw"
-#define CONFIG_BOOTCOMMAND "run mender_setup; load ${mender_uboot_root} 0x80A00000 ${bootdir}/${bootfile}; bootm 0x80A00000; run mender_try_to_recover;"
+#define CONFIG_BOOTCOMMAND "run mender_setup; ext4load ${mender_uboot_root} 0x80A00000 /boot/uImage; bootm 0x80A00000; run mender_try_to_recover;"
 
 /* mender uses hush syntax */
 #define CONFIG_SYS_HUSH_PARSER 1
