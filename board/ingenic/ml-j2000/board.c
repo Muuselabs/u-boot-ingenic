@@ -32,6 +32,15 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/mmc.h>
 
+#define DEBUG
+#include <i2c.h>
+
+#define CONFIG_SYS_I2C_HT_ADDR 0xA0
+
+/* the following must match the values in the regmap json */
+#define EEPROM_ADDR_OFFSET 0x00000025 /* address offset of the 'EEPROM_ADDR' register */
+#define EEPROM_DATA_OFFSET 0x00000026 /* address offset of the 'EEPROM_DATA' register */
+
 extern int jz_net_initialize(bd_t *bis);
 
 int board_early_init_f(void)
@@ -73,6 +82,17 @@ int misc_init_r(void)
 	/* set MAC address */
 	eth_setenv_enetaddr("ethaddr", mac);
 #endif
+
+	/* get the sysmode from the HT MCU */
+	u8 sysmode = 0xFF;
+    char buf[4];
+	i2c_init (CONFIG_SYS_I2C_SPEED, 0xFE);
+
+	i2c_reg_write(CONFIG_SYS_I2C_HT_ADDR, EEPROM_ADDR_OFFSET, 0);
+	sysmode = i2c_reg_read(CONFIG_SYS_I2C_HT_ADDR, EEPROM_DATA_OFFSET);
+    sprintf(buf, "%d", sysmode);
+	setenv ("ht_sysmode", buf);
+
 	return 0;
 }
 
@@ -87,7 +107,7 @@ int board_mmc_init(bd_t *bd)
 /* U-Boot common routines */
 int checkboard(void)
 {
-	puts("Board: ML-J2000 (Ingenic XBurst X1000 SoC)\n");
+	puts("Board: ML-J2000\n");
 	return 0;
 }
 

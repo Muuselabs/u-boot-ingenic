@@ -111,11 +111,10 @@
 #define CONFIG_SOFT_I2C_GPIO_SCL GPIO_PD(0)
 #define CONFIG_SOFT_I2C_GPIO_SDA GPIO_PD(1)
 #define CONFIG_SYS_I2C_SPEED 100000
-#define CONFIG_SYS_I2C_SLAVE 0
 
 /* bootargs */
 #define BOOTARGS_COMMON "console=ttyS2,115200n8 mem=32M@0x0 loglevel=9 "
-#define CONFIG_BOOTARGS BOOTARGS_COMMON " root=${mender_kernel_root} rootfstype=ext4 rw"
+#define CONFIG_BOOTARGS BOOTARGS_COMMON " sysmode=${ht_sysmode} root=${mender_kernel_root} rootfstype=ext4 rw"
 #define CONFIG_BOOTCOMMAND "run mender_setup; ext4load ${mender_uboot_root} 0x80A00000 /boot/uImage; bootm 0x80A00000; run mender_try_to_recover;"
 
 /* mender uses hush syntax */
