@@ -95,6 +95,20 @@
 /* #define CONFIG_RTC_SELEXC_BY_EXCLK */
 #endif
 
+#define CONFIG_USB_JZ_DWC2_UDC_V1_1
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE 4096
+
+#define CONFIG_CMD_DFU
+#define CONFIG_DFU_MMC
+#define CONFIG_USB_GADGET_VBUS_DRAW 500
+
+#define CONFIG_G_DNL_PRODUCT_NUM 0x6601
+#define CONFIG_G_DNL_VENDOR_NUM 0x0403
+#define CONFIG_G_DNL_MANUFACTURER "Muuselabs"
 
 /*#define CONFIG_CMD_USB*/		/* USB host command */
 #ifdef CONFIG_CMD_USB
@@ -115,7 +129,13 @@
 /* bootargs */
 #define BOOTARGS_COMMON "console=ttyS2,115200n8 mem=32M@0x0 loglevel=9 "
 #define CONFIG_BOOTARGS BOOTARGS_COMMON " sysmode=${ht_sysmode} root=${mender_kernel_root} rootfstype=ext4 rw"
-#define CONFIG_BOOTCOMMAND "run mender_setup; ext4load ${mender_uboot_root} 0x80A00000 /boot/uImage; bootm 0x80A00000; run mender_try_to_recover;"
+#define CONFIG_BOOTCOMMAND "run mender_setup; run dfu_check; ext4load ${mender_kernel_root} 0x80A00000 /boot/uImage; bootm 0x80A00000; run mender_try_to_recover;"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+    "dfu_alt_info=bootloader mmc 22 3FDE;environ mmc 0x4000 0x1;factory part 0 1;rootfs_active part 0 ${mender_boot_part};rootfs_inactive part 0 ${mender_inactive_part};config fat 0 5\0" \
+    "dfu_active=0\0" \
+    "dfu_check=if test ${dfu_active} = 1; then echo \"starting dfu\"; dfu mmc 0 1; fi\0" \
+    ""
 
 /* mender uses hush syntax */
 #define CONFIG_SYS_HUSH_PARSER 1
