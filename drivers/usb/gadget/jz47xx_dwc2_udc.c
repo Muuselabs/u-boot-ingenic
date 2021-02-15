@@ -684,6 +684,7 @@ int jz_dwc_pullup(struct usb_gadget *gadget, int is_on)
 		udc_set_reg(0, DCTL_SOFT_DISCONN, OTG_DCTL);
 		mdelay(2000); //wait for host disconnect
 	}
+	return 0;
 }
 
 static const struct usb_gadget_ops jz_udc_ops = {

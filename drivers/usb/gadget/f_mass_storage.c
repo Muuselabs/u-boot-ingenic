@@ -311,6 +311,7 @@ static const char fsg_string_interface[] = "Mass Storage";
 struct kref {int x; };
 struct completion {int x; };
 
+#if 0
 inline void set_bit(int nr, volatile void *addr)
 {
 	int	mask;
@@ -330,6 +331,7 @@ inline void clear_bit(int nr, volatile void *addr)
 	mask = 1 << (nr & 0x1f);
 	*a &= ~mask;
 }
+#endif
 
 struct fsg_dev;
 struct fsg_common;
@@ -2607,7 +2609,7 @@ static void fsg_common_release(struct kref *ref)
 
 
 /*-------------------------------------------------------------------------*/
-
+#if 0
 /**
  * usb_copy_descriptors - copy a vector of USB descriptors
  * @src: null-terminated vector to copy
@@ -2657,7 +2659,7 @@ usb_copy_descriptors(struct usb_descriptor_header **src)
 	return ret;
 }
 
-
+#endif
 
 static void fsg_unbind(struct usb_configuration *c, struct usb_function *f)
 {
