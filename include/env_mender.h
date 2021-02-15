@@ -46,12 +46,20 @@
                                                                         \
     "bootlimit=1\0"                                                     \
     "bootcount=0\0"                                                     \
+    "factory_reset=1\0"                                                 \
                                                                         \
     "upgrade_available=0\0"                                             \
                                                                         \
     "mender_boot_part=" __stringify(MENDER_ROOTFS_PART_A_NUMBER) "\0"   \
                                                                         \
     "mender_boot_part_hex=" __stringify(MENDER_ROOTFS_PART_A_NUMBER_HEX) "\0"   \
+                                                                        \
+    "mender_rootfs_part_a=" __stringify(MENDER_ROOTFS_PART_A_NUMBER) "\0"   \
+    "mender_rootfs_part_b=" __stringify(MENDER_ROOTFS_PART_B_NUMBER) "\0"   \
+                                                                        \
+    "mender_factory_part=" __stringify(MENDER_FACTORY_PART_NUMBER) "\0"   \
+                                                                        \
+    "mender_factory_part_hex=" __stringify(MENDER_FACTORY_PART_NUMBER_HEX) "\0"   \
                                                                         \
     "mender_uboot_boot=" MENDER_UBOOT_STORAGE_INTERFACE " " __stringify(MENDER_UBOOT_STORAGE_DEVICE) ":" __stringify(MENDER_BOOT_PART_NUMBER_HEX) "\0" \
                                                                         \
@@ -84,16 +92,24 @@
     "then "                                                             \
     "setenv bootargs \"systemd.machine_id=${mender_systemd_machine_id} ${bootargs}\"; " \
     "fi; "                                                              \
-    "setenv mender_kernel_root " MENDER_STORAGE_DEVICE_BASE "${mender_boot_part}; "    \
-    "if test ${mender_boot_part} = " __stringify(MENDER_ROOTFS_PART_A_NUMBER) "; "     \
-    "then "                                                                            \
-    "setenv mender_boot_part_name " MENDER_ROOTFS_PART_A_NAME "; "                     \
-    "else "                                                                             \
-    "setenv mender_boot_part_name " MENDER_ROOTFS_PART_B_NAME "; "                     \
-    "fi; "                                                                             \
-    "setenv mender_kernel_root_name ${mender_boot_part_name}; "         \
-    "setenv mender_uboot_root " MENDER_UBOOT_STORAGE_INTERFACE " " __stringify(MENDER_UBOOT_STORAGE_DEVICE) ":${mender_boot_part_hex}; " \
-    "setenv mender_uboot_root_name ${mender_boot_part_name}; "          \
+    "if test ${factory_reset} = 1; " \
+    "then " \
+      "setenv mender_kernel_root " MENDER_STORAGE_DEVICE_BASE "${mender_factory_part}; "    \
+      "setenv mender_kernel_root_name " MENDER_FACTORY_PART_NAME "; "         \
+      "setenv mender_uboot_root " MENDER_UBOOT_STORAGE_INTERFACE " " __stringify(MENDER_UBOOT_STORAGE_DEVICE) ":${mender_factory_part_hex}; " \
+      "echo \"booting factory image...\"; " \
+    "else; " \
+      "setenv mender_kernel_root " MENDER_STORAGE_DEVICE_BASE "${mender_boot_part}; "    \
+      "if test ${mender_boot_part} = " __stringify(MENDER_ROOTFS_PART_A_NUMBER) "; "     \
+      "then "                                                                            \
+        "setenv mender_boot_part_name " MENDER_ROOTFS_PART_A_NAME "; "                     \
+      "else "                                                                             \
+        "setenv mender_boot_part_name " MENDER_ROOTFS_PART_B_NAME "; "                     \
+      "fi; "                                                                             \
+      "setenv mender_kernel_root_name ${mender_boot_part_name}; "         \
+      "setenv mender_uboot_root " MENDER_UBOOT_STORAGE_INTERFACE " " __stringify(MENDER_UBOOT_STORAGE_DEVICE) ":${mender_boot_part_hex}; " \
+      "setenv mender_uboot_root_name ${mender_boot_part_name}; "          \
+    "fi;" \
     "setenv expand_bootargs \"setenv bootargs \\\\\"${bootargs}\\\\\"\"; "              \
     "run expand_bootargs; "                                             \
     "setenv expand_bootargs; "                                          \
