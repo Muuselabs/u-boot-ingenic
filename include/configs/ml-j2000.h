@@ -106,8 +106,8 @@
 #define CONFIG_DFU_MMC
 #define CONFIG_USB_GADGET_VBUS_DRAW 500
 
-#define CONFIG_G_DNL_PRODUCT_NUM 0x6601
-#define CONFIG_G_DNL_VENDOR_NUM 0x0403
+#define CONFIG_G_DNL_PRODUCT_NUM   0x6601
+#define CONFIG_G_DNL_VENDOR_NUM    0x0403
 #define CONFIG_G_DNL_MANUFACTURER "Muuselabs"
 
 /*#define CONFIG_CMD_USB*/		/* USB host command */
@@ -129,12 +129,31 @@
 /* bootargs */
 #define BOOTARGS_COMMON "console=ttyS2,115200n8 mem=32M@0x0 loglevel=9 "
 #define CONFIG_BOOTARGS BOOTARGS_COMMON " sysmode=${ht_sysmode} root=${mender_kernel_root} rootfstype=ext4 rw"
-#define CONFIG_BOOTCOMMAND "run mender_setup; run dfu_check; ext4load ${mender_kernel_root} 0x80A00000 /boot/uImage; bootm 0x80A00000; run mender_try_to_recover;"
 
+/* Boot sequence: 
+ * - setup mender variables
+ * - check if we need to go into dfu mode because of an environment setting
+ * - boot the normal mender way
+ * - if that fails, do mender recovery
+ * - if mender recovery fails, go into dfu mode
+ */
+#define CONFIG_BOOTCOMMAND \
+  "run mender_setup; " \
+  "run dfu_check; "\
+  "ext4load ${mender_uboot_root} 0x80A00000 /boot/uImage; bootm 0x80A00000; " \
+  "run mender_try_to_recover; " \
+  "setenv dfu_active 1; run dfu_check;"
+
+/* NOTE(pp): don't put spaces in dfu_alt_info! */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-    "dfu_alt_info=bootloader mmc 22 3FDE;environ mmc 0x4000 0x1;factory part 0 1;rootfs_active part 0 ${mender_boot_part};rootfs_inactive part 0 ${mender_inactive_part};config fat 0 5\0" \
+    "dfu_alt_info=bootloader mmc 22 3FDE\\;environ mmc 0x4000 0x1\\;"\
+                 "factory part 0 1\\;rootfs_a part 0 ${mender_rootfs_part_a}\\;"\
+                 "rootfs_b part 0 ${mender_rootfs_part_b}\\;config fat 0 5\0" \
     "dfu_active=0\0" \
-    "dfu_check=if test ${dfu_active} = 1; then echo \"starting dfu\"; dfu mmc 0 1; fi\0" \
+    "dfu_check=if test ${dfu_active} = 1; then echo \"starting dfu\"; " \
+    "setenv expand_dfu_alt_info \"setenv dfu_alt_info \\\\\"${dfu_alt_info}\\\\\"\"; " \
+    "run expand_dfu_alt_info; "                                             \
+    "dfu mmc 0 1; fi\0" \
     ""
 
 /* mender uses hush syntax */
