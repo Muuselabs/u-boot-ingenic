@@ -35,7 +35,7 @@
 #define DEBUG
 #include <i2c.h>
 
-#define CONFIG_SYS_I2C_HT_ADDR 0xA0
+#define CONFIG_SYS_I2C_HT_ADDR 0x0A
 
 /* the following must match the values in the regmap json */
 #define EEPROM_ADDR_OFFSET 0x00000025 /* address offset of the 'EEPROM_ADDR' register */
